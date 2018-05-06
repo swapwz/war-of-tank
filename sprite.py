@@ -54,19 +54,54 @@ class Tank(pygame.sprite.Sprite):
                     self.rect = self.rect.clamp(constants.SCREEN_RECT)
                 break
 
+    def direction(self):
+        return self.direction
+
+    def fire_pos(self):
+        if self.direction == constants.DIRECTION_UP:
+            return (self.rect.centerx, self.rect.top)
+        elif self.direction == constants.DIRECTION_DOWN:
+            return (self.rect.centerx, self.rect.bottom) 
+        elif self.direction == constants.DIRECTION_LEFT:
+            return (self.rect.left, self.rect.centery)
+        elif self.direction == constants.DIRECTION_RIGHT:
+            return (self.rect.right, self.rect.centery)
+
 
 class Shot(pygame.sprite.Sprite):
-    speed = -11
-    images = []
-    def __init__(self, pos):
+    speed = 20
+    next_pos = {
+            constants.DIRECTION_RIGHT: lambda x: (x, 0),
+            constants.DIRECTION_LEFT: lambda x: (-x, 0),
+            constants.DIRECTION_UP: lambda x: (0, -x),
+            constants.DIRECTION_DOWN: lambda x: (0, x),
+    }
+
+    def __init__(self, direction, pos):
         pygame.sprite.Sprite.__init__(self, self.containers)
-        self.image = self.images[0]
-        self.rect = self.image.get_rect(midbottom=pos)
+        self.load_images()
+        self.image = self.images[direction]
+        if direction == constants.DIRECTION_UP:
+            self.rect = self.image.get_rect(midbottom=pos)
+        elif direction == constants.DIRECTION_DOWN:
+            self.rect = self.image.get_rect(midtop=pos)
+        elif direction == constants.DIRECTION_LEFT:
+            self.rect = self.image.get_rect(midright=pos)
+        elif direction == constants.DIRECTION_RIGHT:
+            self.rect = self.image.get_rect(midleft=pos)
+        self.direction = direction
 
     def update(self):
-        self.rect.move_ip(0, self.speed)
-        if self.rect.top <= 0:
+        new_pos = self.next_pos[self.direction](self.speed)
+        self.rect.move_ip(new_pos)
+        if not constants.SCREEN_RECT.contains(self.rect):
             self.kill()
 
-
+    def load_images(self):
+        self.images = {
+                constants.DIRECTION_UP: utils.load_image('bullet_1_up.png'),
+                constants.DIRECTION_DOWN: utils.load_image('bullet_1_down.png'),
+                constants.DIRECTION_LEFT: utils.load_image('bullet_1_left.png'),
+                constants.DIRECTION_RIGHT: utils.load_image('bullet_1_right.png')
+            }
 

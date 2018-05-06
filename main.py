@@ -15,8 +15,12 @@ def game_loop(screen, background):
     # use clock to limit frame update rate
     clock = pygame.time.Clock() 
 
+    # initialize game groups
+    shots = pygame.sprite.Group()
+
     all = pygame.sprite.RenderUpdates()
     sprite.Tank.containers = all
+    sprite.Shot.containers = shots, all
 
     player1 = sprite.Tank()
 
@@ -32,6 +36,9 @@ def game_loop(screen, background):
         # 
         keystate = pygame.key.get_pressed()
         player1.take_direction(keystate)
+
+        if keystate[K_SPACE]:
+            sprite.Shot(player1.direction, player1.fire_pos())
 
         dirty = all.draw(screen)
         pygame.display.update(dirty)

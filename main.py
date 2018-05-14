@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import random
 
 import pygame
 from pygame.locals import *
@@ -9,6 +10,8 @@ from pygame.locals import *
 import sprite
 import utils
 import constants
+
+MAX_MONSTER = 5 
 
 
 def game_loop(screen, background):
@@ -18,9 +21,13 @@ def game_loop(screen, background):
     # initialize game groups
     shots = pygame.sprite.Group()
 
+    # monster
+    monsters = pygame.sprite.Group()
+
     all = pygame.sprite.RenderUpdates()
     sprite.Tank.containers = all
     sprite.Shot.containers = shots, all
+    sprite.Monster.containers = monsters, all
 
     player1 = sprite.Tank()
 
@@ -37,8 +44,12 @@ def game_loop(screen, background):
         keystate = pygame.key.get_pressed()
         player1.take_direction(keystate)
 
-        if keystate[K_SPACE]:
+        if keystate[K_SPACE] and len(shots) < 1:
             sprite.Shot(player1.direction, player1.fire_pos())
+
+        if len(monsters) < MAX_MONSTER and (not int(random.random() * 22)):
+            sprite.Monster()
+            sprite.Monster()
 
         dirty = all.draw(screen)
         pygame.display.update(dirty)
